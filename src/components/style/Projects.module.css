@@ -1,0 +1,230 @@
+.container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ff0080 0%, #7928ca 100%);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.glassCard {
+  width: 95%;
+  max-width: 1200px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 40px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  transform: translateY(50px);
+  opacity: 0;
+  transition: all 0.5s ease;
+}
+
+.glassCard.animate {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.avatar {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info h1 {
+  font-size: 2.5rem;
+  color: white;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.info h2 {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+}
+
+.projectsSection {
+  margin-top: 40px;
+}
+
+.projectsSection h3 {
+  color: white;
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.projectSlider {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+
+.projectCard {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 15px;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.projectImage {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.projectImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.projectInfo {
+  padding: 20px 0;
+}
+
+.projectInfo h4 {
+  color: white;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
+}
+
+.projectInfo p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.modelContainer {
+  height: 200px;
+  margin-top: 20px;
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.navButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.socialLinks {
+  margin-top: 40px;
+}
+
+.socialGrid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.socialIcon {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.socialIcon:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+@media (min-width: 768px) {
+  .header {
+    flex-direction: row;
+    text-align: left;
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .projectCard {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+
+  .projectImage {
+    height: 100%;
+  }
+
+  .modelContainer {
+    height: 300px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .glassCard {
+    padding: 60px;
+  }
+
+  .projectCard {
+    grid-template-columns: 2fr 1fr 1fr;
+  }
+
+  .socialGrid {
+    gap: 30px;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}

@@ -1,121 +1,183 @@
-"use client"
+"use client";
 
-import { useState, useRef } from "react"
-import { motion } from "framer-motion"
-import { Canvas, useFrame } from "@react-three/fiber"
-import { OrbitControls } from "@react-three/drei"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Canvas } from "@react-three/fiber";
+import { Text, OrbitControls } from "@react-three/drei";
+import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
+
+const socialLinks = [
+  { icon: FaGithub, url: "#", label: "GitHub" },
+  { icon: FaLinkedin, url: "#", label: "LinkedIn" },
+  { icon: FaTwitter, url: "#", label: "Twitter" },
+  { icon: FaEnvelope, url: "mailto:your.email@example.com", label: "Email" },
+];
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
-  })
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log("Form submitted:", formData)
-    setFormData({ name: "", email: "", message: "" })
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    // Add your form submission logic here
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsSubmitting(false);
+    setFormData({ name: "", email: "", message: "" });
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Name
-        </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
-          value={formData.name}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Name
+          </label>
+          <input
+            type="text"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
+            required
+          />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          <label className="block text-sm font-medium text-gray-300 mb-2">
+            Email
+          </label>
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+            className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
+            required
+          />
+        </motion.div>
       </div>
-      <div>
-        <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          Email
-        </label>
-        <input
-          type="email"
-          id="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        />
-      </div>
-      <div>
-        <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+      >
+        <label className="block text-sm font-medium text-gray-300 mb-2">
           Message
         </label>
         <textarea
-          id="message"
-          name="message"
-          rows={4}
           value={formData.message}
-          onChange={handleChange}
+          onChange={(e) =>
+            setFormData({ ...formData, message: e.target.value })
+          }
+          rows={6}
+          className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
           required
-          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-        ></textarea>
-      </div>
-      <div>
-        <motion.button
-          type="submit"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Send Message
-        </motion.button>
-      </div>
-    </form>
-  )
-}
+        />
+      </motion.div>
 
-const AnimatedCube = () => {
-  const meshRef = useRef()
-  useFrame((state, delta) => {
-    meshRef.current.rotation.x += delta
-    meshRef.current.rotation.y += delta
-  })
-  return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="hotpink" />
-    </mesh>
-  )
-}
+      <motion.button
+        type="submit"
+        disabled={isSubmitting}
+        className={`
+          w-full md:w-auto px-8 py-4 rounded-lg
+          bg-gradient-to-r from-purple-600 to-pink-600
+          text-white font-medium
+          transform transition-all duration-300
+          hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25
+          disabled:opacity-50 disabled:cursor-not-allowed
+        `}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        {isSubmitting ? "Sending..." : "Send Message"}
+      </motion.button>
+    </form>
+  );
+};
 
 const Contact = () => {
   return (
-    <section id="contact" className="py-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold mb-8 text-center">Contact Me</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <ContactForm />
+    <section id="contact" className="min-h-screen py-20 relative">
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black opacity-90"></div>
+
+      <div className="container mx-auto px-4 relative z-10">
+        <motion.h2
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-4xl font-bold mb-16 text-center bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text"
+        >
+          Get In Touch
+        </motion.h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
+          <div className="space-y-8">
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
+              <ContactForm />
+            </div>
+
+            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
+              <h3 className="text-xl font-bold text-white mb-6">
+                Connect With Me
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {socialLinks.map((social, index) => (
+                  <motion.a
+                    key={index}
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <social.icon className="text-xl" />
+                    <span>{social.label}</span>
+                  </motion.a>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="h-96">
+
+          <div className="h-[600px] relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-xl backdrop-blur-sm"></div>
             <Canvas>
-              <OrbitControls enableZoom={false} />
+              <OrbitControls enableZoom={false} autoRotate />
               <ambientLight intensity={0.5} />
-              <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
-              <AnimatedCube />
+              <pointLight position={[10, 10, 10]} />
+              <Text
+                color="white"
+                fontSize={1.5}
+                maxWidth={200}
+                lineHeight={1}
+                letterSpacing={0.02}
+                textAlign="center"
+                font="/fonts/Inter-Bold.ttf"
+                anchorX="center"
+                anchorY="middle"
+              >
+                Let's work together!
+              </Text>
             </Canvas>
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Contact
-
+export default Contact;
