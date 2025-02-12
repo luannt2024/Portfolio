@@ -1,129 +1,120 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { TypeAnimation } from "react-type-animation";
-import Image from "next/image";
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
-import {
-  FaStackOverflow,
-  FaCodepen,
-  FaTwitter,
-  FaEnvelope,
-  FaChevronDown,
-  FaChevronUp,
-} from "react-icons/fa";
+import Image from "next/image";
+import { useAnimation } from "../components/AnimationProvider";
+import { SplitText } from "gsap-trial/SplitText";
+// Import SplitText
+
+gsap.registerPlugin(ScrollTrigger);
 
 const About = () => {
-  const [showMore, setShowMore] = useState(false);
-  const [animate, setAnimate] = useState(false);
+  const aboutRef = useRef(null);
+  const { prefersReducedMotion } = useAnimation();
 
   useEffect(() => {
-    setAnimate(true);
-  }, []);
+    if (prefersReducedMotion) return;
 
-  const toggleBio = () => {
-    setShowMore(!showMore);
-  };
+    const ctx = gsap.context(() => {
+      // Split text animation
+      const splitTitle = new SplitText(".about-title", {
+        type: "chars, words",
+      });
+      const splitText = new SplitText(".about-text p", { type: "lines" });
+
+      gsap.from(splitTitle.chars, {
+        opacity: 0,
+        y: 20,
+        rotateX: -90,
+        stagger: 0.02,
+        duration: 0.8,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: ".about-section",
+          start: "top 80%",
+        },
+      });
+
+      gsap.from(splitText.lines, {
+        opacity: 0,
+        y: 20,
+        stagger: 0.1,
+        duration: 0.8,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".about-section",
+          start: "top 60%",
+        },
+      });
+
+      gsap.from(".about-image", {
+        x: 100,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".about-section",
+          start: "top 60%",
+        },
+      });
+    }, aboutRef);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
 
   return (
-    <section id="about" className="section-padding">
+    <section
+      ref={aboutRef}
+      id="about"
+      className="about-section py-20 relative overflow-hidden"
+    >
       <div className="container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: animate ? 1 : 0, y: animate ? 0 : 20 }}
-          transition={{ duration: 0.5 }}
-          className="glass-card"
-        >
-          <div className="flex flex-col md:flex-row items-center">
-            <div className="md:w-1/3 mb-8 md:mb-0">
-              <motion.div
-                className="rounded-full overflow-hidden border-4 border-purple-500 w-48 h-48 mx-auto"
-                whileHover={{ scale: 1.05 }}
-              >
-                <Image
-                  src="/placeholder.svg?height=200&width=200"
-                  alt="Nguyen Thanh Luan"
-                  width={200}
-                  height={200}
-                />
-              </motion.div>
-            </div>
-            <div className="md:w-2/3 md:pl-8">
-              <h1 className="text-4xl font-bold mb-4 text-white">
-                Nguyen Thanh Luan
-              </h1>
-              <h2 className="text-2xl mb-4 text-purple-300">
-                <TypeAnimation
-                  sequence={[
-                    "Frontend Developer",
-                    2000,
-                    "Next.js Enthusiast",
-                    2000,
-                    "Vue.js Expert",
-                    2000,
-                    "React Native Developer",
-                    2000,
-                  ]}
-                  wrapper="span"
-                  repeat={Infinity}
-                />
-              </h2>
-              <p className="text-gray-300 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div className="about-content">
+            <h2 className="about-title text-4xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+              About Me
+            </h2>
+            <div className="about-text text-gray-300 space-y-4">
+              <p>
                 Hi! I'm Luan, a Frontend Developer passionate about building
-                fast, responsive, and user-friendly web applications.
+                fast, responsive, and user-friendly web applications. With 1
+                year of experience, I specialize in Next.js, Vue.js, and React
+                Native.
               </p>
-              <motion.div
-                initial={{ height: 0 }}
-                animate={{ height: showMore ? "auto" : 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden"
-              >
-                <p className="text-gray-300 mb-4">
-                  With 1 year of experience, I specialize in Next.js, Vue.js,
-                  and React Native. My goal is to become a full-stack developer
-                  who can bring significant value to any company I work with.
-                </p>
-                <p className="text-gray-300 mb-4">
-                  I am committed to successfully completing tasks assigned to me
-                  and continuously enhancing my knowledge of other technologies.
-                  I thrive in collaborative environments and enjoy tackling
-                  complex problems with innovative solutions.
-                </p>
-              </motion.div>
-              <button
-                onClick={toggleBio}
-                className="flex items-center text-purple-300 hover:text-purple-400 transition-colors duration-300"
-              >
-                {showMore ? "Show Less" : "Show More"}
-                {showMore ? (
-                  <FaChevronUp className="ml-2" />
-                ) : (
-                  <FaChevronDown className="ml-2" />
-                )}
-              </button>
+              <p>
+                My goal is to become a full-stack developer who can bring
+                significant value to any company I work with. I am committed to
+                successfully completing tasks assigned to me and continuously
+                enhancing my knowledge of other technologies.
+              </p>
             </div>
+            <motion.a
+              href="#contact"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-block mt-6 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              Let's Connect
+            </motion.a>
           </div>
-          <div className="mt-8">
-            <h3 className="text-2xl font-bold mb-4 text-white">
-              Connect with me
-            </h3>
-            <div className="flex justify-center space-x-4">
-              {[FaStackOverflow, FaCodepen, FaTwitter, FaEnvelope].map(
-                (Icon, index) => (
-                  <motion.a
-                    key={index}
-                    href="#"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="text-purple-300 hover:text-purple-400 transition-colors duration-300"
-                  >
-                    <Icon size={24} />
-                  </motion.a>
-                )
-              )}
-            </div>
+          <div className="about-image">
+            <motion.div
+              className="rounded-full overflow-hidden border-4 border-purple-500 w-64 h-64 mx-auto"
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+            >
+              <Image
+                src="/placeholder.svg?height=256&width=256"
+                alt="Nguyen Thanh Luan"
+                width={256}
+                height={256}
+              />
+            </motion.div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

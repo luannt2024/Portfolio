@@ -1,107 +1,147 @@
 "use client";
 
-import { useRef, useEffect } from "react";
-import { Canvas } from "@react-three/fiber";
-import { Sphere, MeshDistortMaterial, OrbitControls } from "@react-three/drei";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { motion } from "framer-motion";
+import { useAnimation } from "../components/AnimationProvider";
+import anime from "animejs";
 
-const AnimatedSphere = () => {
-  return (
-    <Sphere args={[1, 100, 200]} scale={2}>
-      <MeshDistortMaterial
-        color="#4B0082"
-        attach="material"
-        distort={0.5}
-        speed={1.5}
-        roughness={0}
-      />
-    </Sphere>
-  );
-};
+gsap.registerPlugin(ScrollTrigger);
 
 const Hero = () => {
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
+  const heroRef = useRef(null);
+  const titleRef = useRef(null);
+  const { prefersReducedMotion } = useAnimation();
+  const [letters, setLetters] = useState([]);
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0]);
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+
+    const ctx = gsap.context(() => {
+      // Parallax effect
+      gsap.to(".hero-bg", {
+        yPercent: 50,
+        ease: "none",
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+
+      // 3D rotation effect
+      const rotate = gsap.to(heroRef.current, {
+        rotationY: 10,
+        rotationX: -10,
+        ease: "none",
+        paused: true,
+      });
+
+      heroRef.current.addEventListener("mousemove", (e) => {
+        const rect = heroRef.current.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const percentX = (mouseX - centerX) / centerX;
+        const percentY = (mouseY - centerY) / centerY;
+        rotate.vars.rotationY = percentX * 10;
+        rotate.vars.rotationX = -percentY * 10;
+        rotate.invalidate().restart();
+      });
+
+      heroRef.current.addEventListener("mouseleave", () => {
+        gsap.to(heroRef.current, {
+          rotationY: 0,
+          rotationX: 0,
+          duration: 0.5,
+          ease: "power3.out",
+        });
+      });
+
+      // Matrix-like water ripple effect
+      const title = titleRef.current;
+      const letterElements = Array.from(title.children);
+      setLetters(letterElements);
+
+      const animation = anime({
+        targets: letterElements,
+        scale: [
+          { value: 0.5, duration: 500, easing: "easeOutQuad" },
+          { value: 1, duration: 500, easing: "easeInQuad" },
+        ],
+        color: [
+          { value: "#00ff00", duration: 500, easing: "easeOutQuad" },
+          { value: "#ffffff", duration: 500, easing: "easeInQuad" },
+        ],
+        textShadow: [
+          { value: "0 0 5px #00ff00", duration: 500, easing: "easeOutQuad" },
+          { value: "none", duration: 500, easing: "easeInQuad" },
+        ],
+        translateY: [
+          { value: -10, duration: 500, easing: "easeOutQuad" },
+          { value: 0, duration: 500, easing: "easeInQuad" },
+        ],
+        delay: anime.stagger(100, {
+          grid: [letterElements.length, 1],
+          from: "center",
+        }),
+        loop: true,
+        autoplay: false,
+      });
+
+      title.animation = animation;
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
+
+  const handleLetterHover = (index) => {
+    if (titleRef.current && titleRef.current.animation) {
+      titleRef.current.animation.seek(index * 100);
+    }
+  };
 
   return (
     <section
-      ref={containerRef}
-      className="relative h-screen flex items-center justify-center overflow-hidden"
+      ref={heroRef}
+      className="relative h-screen flex items-center justify-center overflow-hidden perspective-1000"
     >
-      <motion.div
-        className="parallax-bg"
-        style={{
-          backgroundImage:
-            'url("https://source.unsplash.com/random/1920x1080?abstract")',
-          y,
-          opacity,
-        }}
-      />
-
-      <div className="relative z-10 container mx-auto px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="text-center"
+      <div className="hero-bg absolute inset-0 bg-gradient-to-b from-black to-green-900 z-0"></div>
+      <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <h1
+          ref={titleRef}
+          className="hero-title text-5xl md:text-7xl font-bold mb-6 text-white"
         >
-          <h1 className="text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
-            Nguyen Thanh Luan
-          </h1>
-          <p className="text-2xl mb-8 text-gray-300">
-            Crafting Digital Experiences
-          </p>
-          <motion.a
-            href="#contact"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="inline-block px-8 py-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            Get in touch
-          </motion.a>
-        </motion.div>
+          {Array.from("Nguyen Thanh Luan").map((char, index) => (
+            <span
+              key={index}
+              className="inline-block cursor-pointer transition-all duration-300 hover:text-green-400"
+              onMouseEnter={() => handleLetterHover(index)}
+            >
+              {char}
+            </span>
+          ))}
+        </h1>
+        <p className="hero-subtitle text-xl md:text-2xl mb-4 text-gray-300">
+          Crafting Digital Experiences with Passion and Precision
+        </p>
+        <p className="hero-description text-lg md:text-xl mb-8 text-gray-400">
+          As a Full Stack Developer, I bring ideas to life through elegant code
+          and intuitive design. With expertise in React, Vue, and Node.js, I
+          create seamless web applications that engage and inspire.
+        </p>
+        <motion.a
+          href="#contact"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="hero-cta inline-block px-8 py-3 rounded-full bg-gradient-to-r from-green-500 to-green-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+        >
+          Let's Create Something Amazing
+        </motion.a>
       </div>
-
-      <div className="absolute bottom-0 right-0 w-1/2 h-1/2 md:w-1/3 md:h-2/3">
-        <Canvas camera={{ position: [0, 0, 5] }}>
-          <OrbitControls enableZoom={false} autoRotate />
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[10, 10, 5]} intensity={1} />
-          <AnimatedSphere />
-        </Canvas>
-      </div>
-
-      <motion.div
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-        animate={{
-          y: [0, 10, 0],
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          repeatType: "reverse",
-        }}
-      >
-        <a href="#about" className="text-white opacity-75 hover:opacity-100">
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-          </svg>
-        </a>
-      </motion.div>
     </section>
   );
 };

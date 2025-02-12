@@ -1,0 +1,368 @@
+/*=============================================
+=            Variables & mixins            =
+=============================================*/
+
+$flowerBody: white;
+$bodyBg: burlywood;
+$leaf: red;
+
+// sizes
+$dotSize: 14px;
+
+// media queries
+$heightlg: 770px;
+$heightmd: 570px;
+
+
+
+@mixin box($size) {
+  width: $size;
+  height: $size;
+}
+
+@mixin round($arg: 50%) {
+  border-radius: $arg;
+}
+
+/*=====  End of Variables & mixins  ======*/
+
+
+
+/*=============================================
+=            Resets            =
+=============================================*/
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+body {
+  overflow: hidden;
+  background-color: $bodyBg;
+}
+
+/*=====  End of Resets  ======*/
+
+
+/*=============================================
+=            Main CSS            =
+=============================================*/
+
+.flower {
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transform-origin: bottom center;
+  transform: scale(.8);
+  filter: drop-shadow(-30px 40px 0 rgba(0, 0, 0, 0.1));
+  animation: flowerOnWind 6s 3s ease-in-out;
+
+  @media screen and (max-height: $heightlg) {
+    transform: scale(.6);
+  }
+
+  @media screen and (max-height: $heightmd) {
+    transform: scale(.4);
+  }
+
+  &__body {
+    @include box($dotSize);
+    transform: rotate(216deg);
+    transform-origin: center;
+    height: $dotSize;
+
+    &--mid {
+      transform: rotate(10deg);
+      animation: bodyAnim2 5s ease-in-out alternate infinite;
+    }
+
+    &--max {
+      transform: rotate(100deg);
+    }
+
+    &--normal {
+      transform: rotate(-35deg);
+    }
+
+    &--reverse {
+      transform: rotate(-70deg);
+
+      &--max {
+        transform: rotate(-120deg);
+      }
+    }
+
+    &--anim1 {
+      animation: bodyAnim1 5s ease-in-out alternate infinite;
+    }
+
+    &--anim2 {
+      animation: bodyAnim2 9s ease-in-out alternate infinite;
+    }
+
+    &--anim3 {
+      animation: bodyAnim3 7s ease-in-out alternate infinite;
+    }
+
+    &--anim4 {
+      animation: bodyAnim4 7s ease-in-out alternate infinite;
+    }
+  }
+}
+
+.dot {
+  @include box($dotSize);
+  @include round();
+  position: relative;
+  opacity: 0;
+}
+
+@for $i from 1 through 400 {
+  .dot:nth-child(#{$i}) {
+    transform: translateX($i * $i / 14 + px) translateY(-($i * $i / 10) + px);
+    background-color: $flowerBody;
+    animation: fadein 0.9s #{$i / 30 }s linear forwards;
+
+    &.dot--reverse {
+      transform: translateX(-$i * $i / 4 + px) translateY(-($i * $i / 10) + px);
+    }
+  }
+}
+
+.bloom {
+  @include box($dotSize);
+  position: absolute;
+  left: 0;
+
+  &--sm {
+    transform: scale(0.4);
+  }
+
+  &--md {
+    transform: scale(0.6);
+  }
+
+  &--lg {
+    transform: scale(0.8);
+  }
+
+  &--xl {
+    animation: bloomKeyframes 6s linear forwards infinite;
+  }
+
+  .bloom__leaf {
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 60px;
+    height: 130px;
+    background-color: $leaf;
+    border-radius: 100%;
+    transform-origin: top center;
+
+    &:nth-child(odd) {
+      background-color: #fff;
+    }
+  }
+
+  $rt: 0;
+
+  @for $i from 1 through 20 {
+    $rt: $rt + 45;
+
+    .bloom__leaf:nth-child(#{$i}) {
+      transform: rotate(#{$rt} + deg);
+    }
+  }
+}
+
+.wind {
+  filter: drop-shadow(-10px 10px 0 rgba(0, 0, 0, 0.06));
+  position: absolute;
+  width: 200px;
+  top: 0;
+  height: 200px;
+  z-index: 10000;
+
+  @media screen and (max-height: $heightlg) {
+    top: 100px;
+    scale: 0.7;
+  }
+
+  &:hover {
+    ~.flower {
+      rotate: 10deg;
+
+      .bloom {
+        &--xl {
+          animation: bloomKeyframes 2s linear forwards infinite;
+        }
+      }
+    }
+  }
+
+  &-blow {
+    position: absolute;
+    margin: 100px;
+    @include box(25px);
+    opacity: 0;
+    transform: translateX(-80px);
+
+    &--wind-blow-1 {
+      animation: windBlow1 2s 3s ease-in-out forwards;
+    }
+
+    &--wind-blow-2 {
+      animation: windBlow2 2s 3s ease-in-out forwards;
+    }
+
+    &--wind-blow-3 {
+      animation: windBlow3 2s 3s ease-in-out forwards;
+    }
+
+    &--reverse {
+      transform: translate(20px, 40px) rotateX(180deg);
+
+      .wind-blow__line {
+        &::before {
+          width: 10px;
+          left: -16px;
+        }
+      }
+    }
+
+    &--reverse-back {
+      transform: translate(-20px, 60px) rotateX(180deg);
+
+      .wind-blow__line {
+        &::before {
+          width: 25px;
+          left: -30px;
+        }
+      }
+    }
+
+    &__circle {
+      @include box(25px);
+      @include round();
+      position: relative;
+      border: 4px solid transparent;
+      border-top-color: #fff;
+      border-right-color: #fff;
+      rotate: 45deg;
+    }
+
+    &__line {
+      background-color: #fff;
+      width: 50px;
+      height: 4px;
+      position: absolute;
+      bottom: 0;
+      right: 12px;
+
+      &::before {
+        background-color: inherit;
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        left: -25px;
+        height: 100%;
+        width: 20px;
+      }
+    }
+  }
+}
+
+/*=====  End of Main CSS  ======*/
+
+
+/*=============================================
+=            Keyframes            =
+=============================================*/
+@keyframes fadein {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes bloomKeyframes {
+  100% {
+    rotate: 360deg;
+  }
+}
+
+@keyframes flowerOnWind {
+  50% {
+    rotate: 20deg;
+  }
+}
+
+@keyframes windBlow1 {
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(300px);
+  }
+}
+
+@keyframes windBlow2 {
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(320px, 40px) rotateX(180deg);
+  }
+}
+
+@keyframes windBlow3 {
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translate(270px, 56px) rotateX(180deg);
+  }
+}
+
+@keyframes bodyAnim1 {
+  10% {
+    transform: rotate(-67deg);
+  }
+
+  70% {
+    transform: rotate(-87deg);
+  }
+}
+
+@keyframes bodyAnim2 {
+  to {
+    transform: rotate(20deg);
+  }
+}
+
+@keyframes bodyAnim3 {
+  20% {
+    transform: rotate(-100deg);
+  }
+
+  70% {
+    transform: rotate(-130deg);
+  }
+}
+
+@keyframes bodyAnim4 {
+  30% {
+    transform: rotate(-25deg);
+  }
+
+  70% {
+    transform: rotate(-40deg);
+  }
+}
+/*=====  End of Keyframes  ======*/

@@ -1,179 +1,155 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { motion } from "framer-motion";
-import { Canvas } from "@react-three/fiber";
-import { Text, OrbitControls } from "@react-three/drei";
-import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from "react-icons/fa";
+import { useAnimation } from "./AnimationProvider";
+import { SplitText } from "gsap-trial/SplitText";
+// Import SplitText
 
-const socialLinks = [
-  { icon: FaGithub, url: "#", label: "GitHub" },
-  { icon: FaLinkedin, url: "#", label: "LinkedIn" },
-  { icon: FaTwitter, url: "#", label: "Twitter" },
-  { icon: FaEnvelope, url: "mailto:your.email@example.com", label: "Email" },
-];
+gsap.registerPlugin(ScrollTrigger);
 
-const ContactForm = () => {
+const Contact = () => {
+  const contactRef = useRef(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { prefersReducedMotion } = useAnimation();
 
-  const handleSubmit = async (e) => {
+  useEffect(() => {
+    if (prefersReducedMotion) return;
+
+    const ctx = gsap.context(() => {
+      // Split text animation
+      const splitTitle = new SplitText(".contact-title", {
+        type: "chars, words",
+      });
+
+      gsap.from(splitTitle.chars, {
+        opacity: 0,
+        y: 20,
+        rotateX: -90,
+        stagger: 0.02,
+        duration: 0.8,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: ".contact-section",
+          start: "top 80%",
+        },
+      });
+
+      gsap.from(".contact-form", {
+        y: 50,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: ".contact-section",
+          start: "top 60%",
+        },
+      });
+    }, contactRef);
+
+    return () => ctx.revert();
+  }, [prefersReducedMotion]);
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    // Add your form submission logic here
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
-    setFormData({ name: "", email: "", message: "" });
+    // Handle form submission
+    console.log(formData);
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Name
-          </label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
-            required
-          />
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <label className="block text-sm font-medium text-gray-300 mb-2">
-            Email
-          </label>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData({ ...formData, email: e.target.value })
-            }
-            className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
-            required
-          />
-        </motion.div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-      >
-        <label className="block text-sm font-medium text-gray-300 mb-2">
-          Message
-        </label>
-        <textarea
-          value={formData.message}
-          onChange={(e) =>
-            setFormData({ ...formData, message: e.target.value })
-          }
-          rows={6}
-          className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
-          required
-        />
-      </motion.div>
-
-      <motion.button
-        type="submit"
-        disabled={isSubmitting}
-        className={`
-          w-full md:w-auto px-8 py-4 rounded-lg
-          bg-gradient-to-r from-purple-600 to-pink-600
-          text-white font-medium
-          transform transition-all duration-300
-          hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25
-          disabled:opacity-50 disabled:cursor-not-allowed
-        `}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        {isSubmitting ? "Sending..." : "Send Message"}
-      </motion.button>
-    </form>
-  );
-};
-
-const Contact = () => {
-  return (
-    <section id="contact" className="min-h-screen py-20 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black opacity-90"></div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-4xl font-bold mb-16 text-center bg-gradient-to-r from-purple-400 to-pink-600 text-transparent bg-clip-text"
-        >
+    <section
+      ref={contactRef}
+      id="contact"
+      className="contact-section py-20 relative overflow-hidden"
+    >
+      <div className="container mx-auto px-4">
+        <h2 className="contact-title text-4xl font-bold mb-16 text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
           Get In Touch
-        </motion.h2>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-          <div className="space-y-8">
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
-              <ContactForm />
-            </div>
-
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-700">
-              <h3 className="text-xl font-bold text-white mb-6">
-                Connect With Me
-              </h3>
-              <div className="flex flex-wrap gap-4">
-                {socialLinks.map((social, index) => (
-                  <motion.a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <social.icon className="text-xl" />
-                    <span>{social.label}</span>
-                  </motion.a>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="h-[600px] relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-xl backdrop-blur-sm"></div>
-            <Canvas>
-              <OrbitControls enableZoom={false} autoRotate />
-              <ambientLight intensity={0.5} />
-              <pointLight position={[10, 10, 10]} />
-              <Text
-                color="white"
-                fontSize={1.5}
-                maxWidth={200}
-                lineHeight={1}
-                letterSpacing={0.02}
-                textAlign="center"
-                font="/fonts/Inter-Bold.ttf"
-                anchorX="center"
-                anchorY="middle"
+        </h2>
+        <div className="max-w-2xl mx-auto">
+          <form onSubmit={handleSubmit} className="contact-form space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-300 mb-2"
               >
-                Let's work together!
-              </Text>
-            </Canvas>
-          </div>
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                required
+              />
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <label
+                htmlFor="message"
+                className="block text-sm font-medium text-gray-300 mb-2"
+              >
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
+                rows={6}
+                className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:border-purple-500 transition-colors"
+                required
+              ></textarea>
+            </motion.div>
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="w-full px-6 py-3 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              Send Message
+            </motion.button>
+          </form>
         </div>
       </div>
     </section>
