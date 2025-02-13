@@ -1,136 +1,122 @@
-import { useEffect, useRef } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { FaExternalLinkAlt, FaGithub } from "react-icons/fa";
-import { useAnimation } from "../components/AnimationProvider";
-import { SplitText } from "gsap-trial/SplitText";
+import { useAnimation } from "./AnimationProvider";
 import Image from "next/image";
+import { useWindowSize } from "react-use";
 
-gsap.registerPlugin(ScrollTrigger, SplitText);
+gsap.registerPlugin(ScrollTrigger);
 
 const projects = [
   {
-    title: "E-commerce Platform",
+    title: "AI-Powered Analytics Dashboard",
     description:
-      "A modern e-commerce platform built with Next.js and Stripe integration.",
-    time: "6 months",
-    client: "XYZ E-Commerce Inc.",
-    images: [
-      "https://i.pinimg.com/474x/ce/da/cb/cedacb5cfcb003c677d3e1c0ac04147e.jpg",
-      "https://i.pinimg.com/474x/ce/da/cb/cedacb5cfcb003c677d3e1c0ac04147e.jpg",
-      "https://i.pinimg.com/474x/ce/da/cb/cedacb5cfcb003c677d3e1c0ac04147e.jpg",
-    ],
-    technologies: ["Next.js", "Stripe", "Tailwind CSS", "PostgreSQL"],
-    liveLink: "https://example-ecommerce.com",
-    githubLink: "https://github.com/yourusername/ecommerce-platform",
+      "A cutting-edge analytics platform with AI-driven insights and real-time data visualization.",
+    image: "https://source.unsplash.com/random/800x600?analytics",
+    github: "https://github.com/yourusername/ai-analytics",
+    live: "https://ai-analytics-demo.com",
+    tags: ["React", "TensorFlow.js", "D3.js", "Node.js"],
   },
   {
-    title: "Task Management App",
+    title: "Blockchain-based Supply Chain",
     description:
-      "A collaborative task management application with real-time updates.",
-    time: "4 months",
-    client: "TaskMaster Corp.",
-    images: [
-      "https://source.unsplash.com/random/800x600?task-management",
-      "https://source.unsplash.com/random/800x600?productivity",
-      "https://source.unsplash.com/random/800x600?organization",
-    ],
-    technologies: ["React", "Firebase", "Material-UI", "Redux"],
-    liveLink: "https://example-taskmanager.com",
-    githubLink: "https://github.com/yourusername/task-manager",
+      "A decentralized supply chain management system leveraging blockchain technology for transparency and efficiency.",
+    image: "https://source.unsplash.com/random/800x600?blockchain",
+    github: "https://github.com/yourusername/blockchain-supply-chain",
+    live: "https://blockchain-supply-demo.com",
+    tags: ["Solidity", "Web3.js", "React", "Node.js"],
   },
   {
-    title: "Weather Forecast Dashboard",
+    title: "AR Interior Design App",
     description:
-      "An interactive weather forecast dashboard with data visualization.",
-    time: "3 months",
-    client: "WeatherTech Ltd.",
-    images: [
-      "https://source.unsplash.com/random/800x600?weather",
-      "https://source.unsplash.com/random/800x600?forecast",
-      "https://source.unsplash.com/random/800x600?meteorology",
-    ],
-    technologies: ["Vue.js", "D3.js", "OpenWeatherMap API", "Vuetify"],
-    liveLink: "https://example-weatherdashboard.com",
-    githubLink: "https://github.com/yourusername/weather-dashboard",
+      "An augmented reality app that allows users to visualize furniture and decor in their space before purchasing.",
+    image: "https://source.unsplash.com/random/800x600?interior-design",
+    github: "https://github.com/yourusername/ar-interior-design",
+    live: "https://ar-interior-demo.com",
+    tags: ["React Native", "ARKit", "ARCore", "Three.js"],
+  },
+  {
+    title: "AI-Powered Chatbot",
+    description:
+      "An intelligent chatbot using natural language processing to provide customer support and information.",
+    image: "https://source.unsplash.com/random/800x600?chatbot",
+    github: "https://github.com/yourusername/ai-chatbot",
+    live: "https://ai-chatbot-demo.com",
+    tags: ["Python", "TensorFlow", "React", "Flask"],
   },
 ];
 
-const ProjectCard = ({ project }) => {
+const ProjectCard = ({ project, index }) => {
   const cardRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: cardRef,
+    offset: ["start end", "end start"],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", "-30%"]);
 
   useEffect(() => {
     gsap.from(cardRef.current, {
-      opacity: 0,
-      y: 50,
-      scale: 1.2, // Tăng kích thước card
-      duration: 1,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: cardRef.current,
-        start: "top bottom-=100",
-        end: "top center",
-        scrub: 1,
-      },
+      opacity: 1,
+      y: 60,
+      duration: 0.5,
+      delay: index * 0.1, // Thêm độ trễ cho từng thẻ
     });
-  }, []);
+  }, [index]);
 
   return (
     <motion.div
       ref={cardRef}
-      className="bg-gray-800/30 backdrop-blur-md rounded-xl overflow-hidden shadow-xl flex-shrink-0 w-[40vw] h-[80vh] mx-4" // Tăng kích thước card
+      style={{ y }}
+      className="project-card w-[60vw] flex-shrink-0 my-2 overflow-hidden mt-40"
     >
-      <div className="relative aspect-video overflow-x-auto flex snap-x snap-mandatory">
-        {project.images.map((image, index) => (
-          <div key={index} className="w-full flex-shrink-0 snap-center">
-            <img
-              src={image || "/placeholder.svg"}
-              alt={`${project.title} - Image ${index + 1}`}
-              layout="fill"
-              objectFit="cover"
-            />
+      <div className="bg-white bg-opacity-0 backdrop-filter backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden transition-transform duration-300 hover:scale-105">
+        <div className="relative h-64 md:h-80 mt-20">
+          <img
+            src={project.image || "/placeholder.svg"}
+            alt={project.title}
+            layout="fill"
+            objectFit="cover"
+            className="transition-transform duration-300 transform hover:scale-110"
+          />
+        </div>
+        <div className="p-6">
+          <h3 className="text-2xl font-bold mb-2 text-white">
+            {project.title}
+          </h3>
+          <p className="text-gray-300 mb-4">{project.description}</p>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {project.tags.map((tag, index) => (
+              <span
+                key={index}
+                className="px-3 py-1 text-sm   text-purple-200 rounded-full"
+              >
+                {tag}
+              </span>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="p-6">
-        <h3 className="text-2xl font-bold text-white mb-2">{project.title}</h3>
-        <p className="text-gray-300 mb-4">{project.description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.technologies.map((tech, index) => (
-            <span
-              key={index}
-              className="px-3 py-1 text-sm bg-purple-500/20 text-purple-300 rounded-full"
+          <div className="flex space-x-4">
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-white  px-4 py-2 rounded-full transition-colors duration-300"
             >
-              {tech}
-            </span>
-          ))}
-        </div>
-        <div className="mb-4 text-gray-400">
-          <p className="text-sm">
-            <strong>Time:</strong> {project.time}
-          </p>
-          <p className="text-sm">
-            <strong>Client:</strong> {project.client}
-          </p>
-        </div>
-        <div className="flex space-x-4">
-          <a
-            href={project.liveLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center text-white bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded-full transition-colors duration-300"
-          >
-            <FaExternalLinkAlt className="mr-2" /> Live Demo
-          </a>
-          <a
-            href={project.githubLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center text-white bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-full transition-colors duration-300"
-          >
-            <FaGithub className="mr-2" /> GitHub
-          </a>
+              <FaGithub className="mr-2" /> GitHub
+            </a>
+            <a
+              href={project.live}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center text-white   px-4 py-2 rounded-full transition-colors duration-300"
+            >
+              <FaExternalLinkAlt className="mr-2" /> Live Demo
+            </a>
+          </div>
         </div>
       </div>
     </motion.div>
@@ -140,77 +126,47 @@ const ProjectCard = ({ project }) => {
 const Projects = () => {
   const projectsRef = useRef(null);
   const { prefersReducedMotion } = useAnimation();
+  const [isClient, setIsClient] = useState(false);
+  const { width } = useWindowSize();
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    setIsClient(true);
+  }, []);
+  useEffect(() => {
+    if (!isClient || !projectsRef.current || prefersReducedMotion) return;
 
     const ctx = gsap.context(() => {
-      const splitTitle = new SplitText(".projects-title", {
-        type: "chars, words",
-      });
-
-      gsap.from(splitTitle.chars, {
-        opacity: 0,
-        y: 20,
-        rotateX: -90,
-        stagger: 0.02,
-        duration: 0.8,
-        ease: "back.out(1.7)",
-        scrollTrigger: {
-          trigger: ".projects-section",
-          start: "top 80%",
-        },
-      });
-
-      // Tạo hiệu ứng cuộn ngang với hiệu ứng pinning
-      gsap.to(".projects-container", {
-        xPercent: -100 * (projects.length - 1),
+      gsap.to(projectsRef.current, {
+        x: () => -(projectsRef.current.scrollWidth - width),
         ease: "none",
         scrollTrigger: {
-          trigger: ".projects-section",
+          trigger: projectsRef.current,
           start: "top top",
-          end: () => `+=${projectsRef.current.offsetWidth}`,
+          end: () => `+=${projectsRef.current.scrollWidth - width}`,
           scrub: 1,
           pin: true,
           anticipatePin: 1,
-        },
-      });
-
-      // Tạo hiệu ứng xuất hiện cho mỗi project card
-      gsap.from(".projects-container .project-card", {
-        opacity: 0,
-        scale: 1.2,
-        stagger: 0.3,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".projects-container",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 1,
+          invalidateOnRefresh: true,
         },
       });
     }, projectsRef);
 
     return () => ctx.revert();
-  }, [prefersReducedMotion]);
+  }, [prefersReducedMotion, isClient, width]);
 
   return (
-    <section
-      ref={projectsRef}
-      id="projects"
-      className="projects-section h-screen relative overflow-hidden"
-    >
-      <div className="absolute top-0 left-0 w-full py-10 z-10">
-        <h2 className="projects-title text-4xl font-bold text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600">
+    <section className="projects-section min-h-screen relative">
+      <div className="absolute top-80 left-0 w-full my-10 z-10">
+        <h2 className="projects-title text-5xl font-bold text-center bg-clip-text text-transparent">
           Featured Projects
         </h2>
       </div>
-      <div className="projects-container flex items-start h-full pt-20">
+      <div
+        ref={projectsRef}
+        className="projects-container flex items-start h-full pt-32 pb-20"
+      >
         {projects.map((project, index) => (
-          <motion.div key={index} className="project-card">
-            <ProjectCard project={project} />
-          </motion.div>
+          <ProjectCard key={index} project={project} index={index} />
         ))}
       </div>
     </section>

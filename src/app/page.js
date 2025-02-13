@@ -47,11 +47,10 @@ export default function Home() {
 
   return (
     <main ref={mainRef} className="overflow-hidden">
-      <AnimatedBackground></AnimatedBackground>
-      {/* <DynamicSVGConnector /> */}
-
-      <Hero />
+      <AnimatedBackground />
       <About />
+
+      {/* <Hero /> */}
       <Skills />
       <Projects />
       <Experience />

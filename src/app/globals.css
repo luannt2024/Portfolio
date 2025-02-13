@@ -109,3 +109,35 @@ g[id^="BudGroup"] g[id^="BudGroup"] g[id^="Bud"],
   visibility: hidden;
 }
 
+
+@layer components {
+  .reveal-text {
+    color: rgba(182, 182, 182, 0.2);
+    background: linear-gradient(to right, #b6b6b6, #b6b6b6) no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-size: 0%;
+    transition: background-size cubic-bezier(0.1, 0.5, 0.5, 1) 0.5s;
+  }
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+.sticky-text {
+  position: sticky;
+  top: 0; /* hoặc bạn có thể thay đổi top: 10px hoặc giá trị khác nếu cần */
+  z-index: 10; /* Đảm bảo phần tử nằm trên các phần tử khác */
+}
+.avatar-reveal {
+  opacity: 0;
+  transform: scale(0.8);
+  filter: blur(10px);
+  transition: opacity 1.5s ease-out, transform 1.5s ease-out, filter 1.5s ease-out;
+}
+
+.avatar-reveal.visible {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+}

@@ -3,12 +3,11 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { DrawSVGPlugin } from "gsap-trial/DrawSVGPlugin";
-import { MotionPathPlugin } from "gsap-trial/MotionPathPlugin";
+import { MotionPathPlugin } from "gsap/gsap-core"; // MotionPathPlugin is free
 import { useAnimation } from "./FlowerProvider";
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, MotionPathPlugin);
+  gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 }
 
 const SVGConnector = () => {
@@ -22,24 +21,23 @@ const SVGConnector = () => {
     const path = svg.querySelector("path");
     const flowers = svg.querySelectorAll(".flower");
 
-    gsap.fromTo(
-      path,
-      { drawSVG: "0%" },
-      {
-        drawSVG: "90%",
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: "body",
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.9,
-        },
-      }
-    );
+    // Set up a stroke dasharray and dashoffset to create the drawing effect
+    const pathLength = path.getTotalLength();
+    path.style.strokeDasharray = pathLength;
+    path.style.strokeDashoffset = pathLength;
+
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      ease: "power1.inOut",
+      scrollTrigger: {
+        trigger: "body",
+        start: "top top",
+        end: "bottom bottom",
+        scrub: 0.9,
+      },
+    });
 
     flowers.forEach((flower, index) => {
-      const angleStep = (Math.PI * 2) / flowers.length;
-
       gsap.to(flower, {
         motionPath: {
           path: path,
@@ -49,8 +47,8 @@ const SVGConnector = () => {
           start: index / (flowers.length - 1),
           end: (index + 1) / (flowers.length - 3),
         },
-        scale: 0.5, // Để hoa không quá lớn
-        duration: 3, // Tăng thời gian để chuyển động mượt mà hơn
+        scale: 0,
+        duration: 6,
         scrollTrigger: {
           trigger: svg,
           start: "top 80%",
@@ -58,12 +56,14 @@ const SVGConnector = () => {
           scrub: 0.5,
           onUpdate: (self) => {
             const progress = self.progress;
-            const scale = 0.12 + progress * 0.88; // Làm hoa lớn dần một cách nhẹ nhàng
-            const angle = progress * 360; // Một vòng quay
+            const scale = 0.12 + progress * 0.88; // Tăng kích thước hoa
+            const angle = progress * 360; // Quay hoa
 
+            // Hiệu ứng nở hoa
             gsap.set(flower, {
               scale: scale,
               rotation: angle,
+              opacity: progress < 0.5 ? progress * 2 : 1, // Nở ra từ 0 đến 1
             });
           },
         },
@@ -76,6 +76,7 @@ const SVGConnector = () => {
       ref={svgRef}
       className="fixed inset-0 w-full h-full pointer-events-none z-[-50] will-change-transform"
       xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 1800 800"
     >
       <path
         d="M100,100 Q300,50 500,200 T900,300 T1300,500 T1700,700"
@@ -84,11 +85,16 @@ const SVGConnector = () => {
         strokeWidth="2"
       />
 
-      {[...Array(6)].map((_, i) => (
-        <g key={i} className="flower">
-          <FlowerSVG />
-        </g>
-      ))}
+      {[...Array(10)].map(
+        (
+          _,
+          i // Tăng số lượng hoa
+        ) => (
+          <g key={i} className="flower">
+            <FlowerSVG />
+          </g>
+        )
+      )}
 
       <defs>
         <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -102,15 +108,21 @@ const SVGConnector = () => {
 
 const FlowerSVG = () => (
   <g>
-    <circle r="4" fill="#3333" /> {/* Trung tâm hoa màu hồng nhạt */}
+    <circle r="10" fill="#FF6F61" />
     {[...Array(12)].map((_, i) => (
       <path
         key={i}
-        d="M0,-28 C12,-16 12,-8 0,0 C-12,-8 -12,-16 0,-28" // Đường cong mềm mại hơn
-        fill="#D1D5DB" // Cánh hoa màu xám nhạt, nhẹ nhàng
-        transform={`rotate(${i * 30})`} // Sắp xếp cánh hoa đều
+        d="M0,-30 C15,-20 15,-10 0,0 C-15,-10 -15,-20 0,-30"
+        fill="url(#petalGradient)"
+        transform={`rotate(${i * 30})`}
       />
     ))}
+    <defs>
+      <linearGradient id="petalGradient" x1="0%" y1="0%" x2="80%" y2="80%">
+        <stop offset="0%" stopColor="#FFB6C1" />
+        <stop offset="100%" stopColor="#FF69B4" />
+      </linearGradient>
+    </defs>
   </g>
 );
 

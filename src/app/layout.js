@@ -6,6 +6,8 @@ import { AnimationProvider } from "../components/AnimationProvider";
 import Script from "next/script";
 import SVGConnector from "../components/SVGConnector";
 import { FlowerProvider } from "../components/FlowerProvider";
+import Hero from "../components/Hero";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
@@ -44,9 +46,8 @@ export default function RootLayout({ children }) {
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <AnimationProvider>
               <SVGConnector />
-
+              <Hero></Hero>
               <Navbar />
-
               {children}
             </AnimationProvider>
           </ThemeProvider>

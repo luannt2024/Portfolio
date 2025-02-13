@@ -56,16 +56,24 @@ const SkillBar = ({ skill, index }) => {
   const barRef = useRef(null);
 
   useEffect(() => {
-    gsap.from(barRef.current, {
-      width: 0,
-      duration: 1.5,
-      ease: "power3.out",
-      scrollTrigger: {
-        trigger: barRef.current,
-        start: "top 90%",
+    gsap.fromTo(
+      barRef.current,
+      {
+        width: "0%", // Bắt đầu từ 0%
       },
-    });
-  }, []);
+      {
+        width: `${skill.level}%`, // Đạt giá trị level khi cuộn xuống
+        duration: 1.5,
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: barRef.current,
+          start: "top bottom", // Khi phần tử bắt đầu vào từ dưới của khung nhìn
+          end: "bottom top", // Khi phần tử đi qua phần trên của khung nhìn
+          scrub: true, // Tạo hiệu ứng cuộn mượt
+        },
+      }
+    );
+  }, [skill.level]);
 
   return (
     <motion.div
@@ -80,11 +88,10 @@ const SkillBar = ({ skill, index }) => {
           {skill.level}%
         </span>
       </div>
-      <div className="w-full bg-gray-700 rounded-full h-2.5">
+      <div className="w-full bg-gray-700 rounded-full h-2.5 relative">
         <div
           ref={barRef}
           className="h-2.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"
-          style={{ width: `${skill.level}%` }}
         ></div>
       </div>
     </motion.div>
@@ -146,7 +153,7 @@ const Skills = () => {
           {skillCategories.map((category, categoryIndex) => (
             <motion.div
               key={categoryIndex}
-              className="skills-category bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700"
+              className="skills-category bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-700 shadow-lg hover:shadow-xl transition-shadow duration-300"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: categoryIndex * 0.1 }}

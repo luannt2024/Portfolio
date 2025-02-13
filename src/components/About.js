@@ -1,69 +1,75 @@
-"use client";
-
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import Avatar from "./Avatar"; // Giữ lại Avatar component
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { useAnimation } from "../components/AnimationProvider";
-import { SplitText } from "gsap-trial/SplitText";
-// Import SplitText
 
 gsap.registerPlugin(ScrollTrigger);
 
 const About = () => {
   const aboutRef = useRef(null);
-  const { prefersReducedMotion } = useAnimation();
+  const avatarRef = useRef(null);
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (!aboutRef.current || !avatarRef.current) return;
 
-    const ctx = gsap.context(() => {
-      // Split text animation
-      const splitTitle = new SplitText(".about-title", {
-        type: "chars, words",
-      });
-      const splitText = new SplitText(".about-text p", { type: "lines" });
-
-      gsap.from(splitTitle.chars, {
-        opacity: 0,
-        y: 20,
-        rotateX: -90,
-        stagger: 0.02,
-        duration: 0.8,
-        ease: "back.out(1.7)",
+    // Animation for About Title
+    gsap.fromTo(
+      ".about-title",
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1.5,
+        ease: "power3.out",
         scrollTrigger: {
           trigger: ".about-section",
           start: "top 80%",
+          end: "top 60%",
+          scrub: true,
         },
-      });
+      }
+    );
 
-      gsap.from(splitText.lines, {
-        opacity: 0,
-        y: 20,
-        stagger: 0.1,
-        duration: 0.8,
-        ease: "power3.out",
+    // Animation for About Text (fading in paragraphs)
+    gsap.utils.toArray(".about-text p").forEach((text) => {
+      gsap.fromTo(
+        text,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          stagger: 0.1,
+          duration: 1.5,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: ".about-section",
+            start: "top 75%",
+            end: "top 50%",
+            scrub: true,
+          },
+        }
+      );
+    });
+
+    // Animation for Avatar (fade in + zoom effect)
+    gsap.fromTo(
+      avatarRef.current,
+      { opacity: 0, scale: 0.5 },
+      {
+        opacity: 1,
+        scale: 1.2,
+        duration: 3.5,
+        ease: "back.out(2.8)",
         scrollTrigger: {
           trigger: ".about-section",
           start: "top 60%",
+          end: "top 40%",
+          scrub: true,
         },
-      });
-
-      gsap.from(".about-image", {
-        x: 100,
-        opacity: 0,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".about-section",
-          start: "top 60%",
-        },
-      });
-    }, aboutRef);
-
-    return () => ctx.revert();
-  }, [prefersReducedMotion]);
+      }
+    );
+  }, []);
 
   return (
     <section
@@ -101,18 +107,12 @@ const About = () => {
             </motion.a>
           </div>
           <div className="about-image">
-            <motion.div
+            <div
+              ref={avatarRef}
               className="rounded-full overflow-hidden border-4 border-purple-500 w-64 h-64 mx-auto"
-              whileHover={{ scale: 1.05, rotate: 5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 10 }}
             >
-              <Image
-                src="/placeholder.svg?height=256&width=256"
-                alt="Nguyen Thanh Luan"
-                width={256}
-                height={256}
-              />
-            </motion.div>
+              <Avatar className="w-full h-full" />
+            </div>
           </div>
         </div>
       </div>
