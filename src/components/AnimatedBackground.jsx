@@ -40,6 +40,10 @@ const AnimatedBackground = () => {
       className="fixed inset-0 pointer-events-none overflow-hidden"
       style={{ zIndex: 0 }}
     >
+        <div className="fixed  z-30 bg-shape absolute top-0 left-0 w-44 h-44 bg-purple-500 rounded-full mix-blend-screen filter blur-2xl opacity-70 animate-blob"></div>
+      <div className="fixed  z-30 bg-shape absolute top-0 right-0 w-32 h-32 bg-pink-500 rounded-full mix-blend-screen filter blur-2xl opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="fixed  z-30 bg-shape absolute -bottom-8 left-20 w-72 h-72 bg-blue-400 rounded-full mix-blend-screen filter blur-2xl opacity-70 animate-blob animation-delay-4000"></div>
+      
       {dots.map((dot) => (
         <div
           key={dot.id}

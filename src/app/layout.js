@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Inter } from "next/font/google";
+import { Inter } from 'next/font/google';
 import Navbar from "../components/Navbar";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { AnimationProvider } from "../components/AnimationProvider";
@@ -45,9 +45,12 @@ export default function RootLayout({ children }) {
         <FlowerProvider>
           <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
             <AnimationProvider>
+            <Navbar />
+
               <SVGConnector />
-              <Hero></Hero>
-              <Navbar />
+              {/* <Navbar /> */}
+              <Hero />
+
               {children}
             </AnimationProvider>
           </ThemeProvider>
