@@ -12,7 +12,30 @@ const About = () => {
   const contentRef = useRef(null)
   const skillsRef = useRef(null)
   const avatarRef = useRef(null)
+  
+  useEffect(() => {
+    const skills = skillsRef.current.querySelectorAll(".skill");
 
+    skills.forEach((skill) => {
+      gsap.set(skill, {
+        y: gsap.utils.random(50, 250),
+        x: gsap.utils.random(-100, 300),
+        opacity: 0.5,
+        scale: gsap.utils.random(0.8, 1.2),
+      });
+
+      // Hiệu ứng di chuyển chậm như đom đóm
+      setInterval(() => {
+        gsap.to(skill, {
+          y: gsap.utils.random(50, 250),
+          x: gsap.utils.random(-100, 300),
+          scale: gsap.utils.random(0.8, 1.2),
+          duration: gsap.utils.random(3, 6),
+          ease: "sine.inOut",
+        });
+      }, gsap.utils.random(3000, 6000));
+    });
+  }, []);
   useEffect(() => {
     if (!aboutRef.current || !contentRef.current || !skillsRef.current || !avatarRef.current) return
 
@@ -21,8 +44,8 @@ const About = () => {
       gsap.from(contentRef.current.children, {
         opacity: 0,
         y: 50,
-        stagger: 0.1,
-        duration: 1,
+        stagger: 0.2,
+        duration: 2.2,
         ease: "power3.out",
         scrollTrigger: {
           trigger: contentRef.current,
@@ -32,104 +55,93 @@ const About = () => {
         },
       })
 
-      // Avatar animation
-      gsap.from(avatarRef.current, {
-        scale: 0,
-        rotation: 360,
-        duration: 1.5,
-        ease: "elastic.out(1, 0.5)",
-        scrollTrigger: {
-          trigger: avatarRef.current,
-          start: "top 80%",
-          toggleActions: "play none none reverse",
-        },
-      })
-
-      // Skills animation
-      const skills = skillsRef.current.querySelectorAll(".skill")
-      ScrollTrigger.create({
-        trigger: skillsRef.current,
-        start: "top center",
-        onEnter: () => {
-          gsap.to(skills, { y: -400, duration: 3, ease: "power2.out" })
-
-          setTimeout(() => {
-            gsap.to(skills, {
-              y: 0,
-              duration: 5,
-              ease: "bounce.out",
-              stagger: 0.5,
-              physics2D: {
-                velocity: 300,
-                angle: -90,
-                gravity: 800,
-              },
-            })
-          }, 0)
-        },
-        onLeaveBack: () => {
-          gsap.to(skills, {
-            y: -400,
-            duration: 1,
-            ease: "power2.in",
-          })
-        },
-      })
-
-      // Physics-based hover interactions for skills
-      skills.forEach((skill) => {
-        skill.addEventListener("mouseenter", () => {
-          gsap.to(skill, {
-            scale: 1.2,
-            duration: 0.3,
-            ease: "power2.out",
-            boxShadow: "0 0 20px rgba(123, 31, 162, 0.5)",
-          })
-        })
-
-        skill.addEventListener("mouseleave", () => {
-          gsap.to(skill, {
-            scale: 1,
-            duration: 0.5,
-            ease: "elastic.out(1, 0.5)",
-            boxShadow: "none",
-            physics2D: {
-              velocity: gsap.utils.random(50, 100),
-              angle: gsap.utils.random(0, 360),
-              gravity: 500,
-            },
-          })
-        })
-      })
-
-      // Magnetic effect on avatar
-      aboutRef.current.addEventListener("mousemove", (e) => {
-        const { clientX, clientY } = e
+      // Avatar follows mouse
+      const moveAvatar = (event) => {
+        const { clientX, clientY } = event
         const { left, top, width, height } = avatarRef.current.getBoundingClientRect()
         const centerX = left + width / 2
         const centerY = top + height / 2
-        const deltaX = clientX - centerX
-        const deltaY = clientY - centerY
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY)
-        const maxDistance = 200
+        const deltaX = (clientX - centerX) * 0.05
+        const deltaY = (clientY - centerY) * 0.05
 
-        if (distance < maxDistance) {
-          const factor = 1 - distance / maxDistance
-          gsap.to(avatarRef.current, {
-            x: deltaX * factor * 0.2,
-            y: deltaY * factor * 0.2,
-            duration: 0.3,
+        gsap.to(avatarRef.current, {
+          x: deltaX,
+          y: deltaY,
+          duration: 0.3,
+          ease: "power2.out",
+        })
+      }
+      window.addEventListener("mousemove", moveAvatar)
+
+      // Skills animation with physics
+      const skills = skillsRef.current.querySelectorAll(".skill");
+
+      skills.forEach((skill, index) => {
+        gsap.set(skill, {
+          y: gsap.utils.random(50, 500),
+          x: gsap.utils.random(-100, 300),
+          opacity: 1,
+          rotation: gsap.utils.random(-15, 15),
+        });
+      
+        gsap.to(skill, {
+          opacity: 1,
+          y: gsap.utils.random(-200, 500),
+          x: gsap.utils.random(-500, 500),
+          rotation: gsap.utils.random(-5, 5),
+          duration: 3.5, // Tăng thời gian để di chuyển mượt hơn
+          ease: "elastic.out(1, 0.5)",
+          delay: index * 0.2,
+          scrollTrigger: {
+            trigger: skillsRef.current,
+            start: "top center",
+          },
+        });
+      
+        // Tạo chuyển động tự động bằng setInterval
+        setInterval(() => {
+          gsap.to(skill, {
+            y: gsap.utils.random(-500, 800),
+            x: gsap.utils.random(-700, 800),
+            rotation: gsap.utils.random(-10, 10),
+            duration: 7, // Thời gian dài hơn để bay chậm chậm
+            ease: "sine.inOut",
+          });
+        }, gsap.utils.random(3000, 6000)); // Lặp lại sau 3-6 giây ngẫu nhiên
+      
+        // Hover effect
+        skill.addEventListener("mouseenter", () => {
+          gsap.to(skill, {
+            duration: 3,
+            scale: 1.2,
+            y: "-=20",
             ease: "power2.out",
-          })
-        } else {
-          gsap.to(avatarRef.current, {
-            x: 0,
-            y: 0,
+          });
+        });
+      
+        skill.addEventListener("mouseleave", () => {
+          gsap.to(skill, {
+            scale: 1,
+            y: "+=2",
+            duration:2,
+            ease: "power2.out",
+          });
+        });
+      
+        skill.addEventListener("click", () => {
+          gsap.to(skill, {
             duration: 0.5,
-            ease: "power2.out",
-          })
-        }
-      })
+            physics2D: {
+              velocity: 300,
+              angle: gsap.utils.random(-600, 600),
+              gravity: gsap.utils.random(300, 500),
+            },
+          });
+        });
+      });
+      
+
+      return () => window.removeEventListener("mousemove", moveAvatar)
     })
 
     return () => ctx.revert()
@@ -150,18 +162,14 @@ const About = () => {
             <div className="text-gray-300 space-y-4">
               <p>
                 Hello! I'm Luan, a passionate Web3 Developer with a knack for creating engaging and innovative web
-                applications. My journey in the world of web development has been an exciting adventure, filled with
-                continuous learning and growth in cutting-edge technologies.
+                applications.
               </p>
               <p>
                 With expertise in blockchain technologies, smart contracts, and decentralized applications (dApps), I
-                bring ideas to life through clean, efficient code and intuitive user interfaces. My goal is to craft
-                digital experiences that not only meet but exceed user expectations in the Web3 space.
+                bring ideas to life through clean, efficient code and intuitive user interfaces.
               </p>
               <p>
-                As I continue to evolve in the rapidly changing landscape of Web3, I'm committed to pushing the
-                boundaries of what's possible in decentralized web development. I thrive on challenges and am always
-                eager to embrace new technologies and methodologies in this exciting field.
+                I thrive on challenges and am always eager to embrace new technologies and methodologies in this exciting field.
               </p>
             </div>
             <a
@@ -187,10 +195,6 @@ const About = () => {
                 <div
                   key={skill}
                   className="skill absolute bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-lg px-4 py-2 text-white font-semibold cursor-pointer transition-all duration-300"
-                  style={{
-                    top: `${Math.floor(index / 4) * 33 + 10}%`,
-                    left: `${(index % 4) * 25 + 5}%`,
-                  }}
                 >
                   {skill}
                 </div>
@@ -204,4 +208,3 @@ const About = () => {
 }
 
 export default About
-

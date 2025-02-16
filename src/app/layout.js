@@ -49,7 +49,7 @@ export default function RootLayout({ children }) {
 
               <SVGConnector />
               {/* <Navbar /> */}
-              <Hero />
+              {/* <Hero /> */}
 
               {children}
             </AnimationProvider>
